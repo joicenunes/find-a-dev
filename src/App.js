@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import logo from './logo.svg';
 import './App.css';
 
-import { MAPS_KEY } from './maps_key.json';
+import { API_KEY } from './keys.json';
+import { Map as LeafletMap, Marker, Popup } from 'leaflet';
 
 function App() {
   const [user, setUser] = useState({});
@@ -10,6 +11,8 @@ function App() {
   const [found, setFound] = useState(false);
   const [loading, setLoading] = useState(false);
   const [toSearch, setSearch] = useState('');
+
+  const [coord, setCoord] = useState([]);
 
   async function getUser(username) {
     try {
@@ -50,20 +53,26 @@ function App() {
     }
   }
 
-  async function initMap() {
-    let div = document.getElementById('map');
-    let local = user.location;
+  function treatLocal(str) {
+    if (!str) return null;
+    let res = str.replace(/[\u0021-\u002F]/g, "-");
+    res = res.replace(/\s/g, "");
+    return res;
+  }
+
+  async function getLatLon(query) {
     try {
-      let placeDetails = await fetch(`https://maps.googleapis.com/maps/api/place/findplacefromtext/json?input=${local}&inputtype=textquery&fields=name,geometry&key=${MAPS_KEY}`, {
-        method: 'GET',
-        headers: {
-          'Access-Control-Allow-Origin': '*'
-        }
-      });
-      console.log(placeDetails);
-    } catch (e) {
+      let res = await fetch(`https://api.pickpoint.io/v1/forward/?key=${API_KEY}&city=${treatLocal(query)}&limit=1&format=json`);
+      
+      if (res.status >= 200 && res.status < 300) {
+        res = res.json()
+        return Promise.resolve(res);
+      } else
+        return Promise.reject(res.statusText);
+        
+    } catch(e) {
       console.log(e);
-      div.textContent = 'Não foi possível carregar a localização.';
+      return Promise.reject();
     }
   }
 
@@ -75,13 +84,20 @@ function App() {
       setSearch(search);
 
       setLoading(true);
-      setUser(await getUser(search));
+      let findTheUser = await getUser(search);
+      setUser(findTheUser);
+
+      let findStarreds = await getStarreds(search);
+      setStarred(findStarreds);
+
+      let [ local ] = await getLatLon(findTheUser.location);
+      let coord = [ local.lat, local.lon ];
+      setCoord(coord);
+
       setFound(true);
-      // initMap();
-      setStarred(await getStarreds(search));
     } catch(e) {
-      setFound(false);
       console.log(e);
+      setFound(false);
       alert('Não foi possível encontrar o usuário indicado.');
     } finally {
       setLoading(false);
@@ -142,11 +158,12 @@ function App() {
   return (
     <div className="App">
       <header className="App-header">
-        <p>
-          Encontre um desenvolvedor
-        </p>
+        <h2>
+          Encontre um desenvolvedor do github!
+        </h2>
             
         <SearchOrLoad isLoading={loading} username={toSearch} />
+      </header>
         { found &&
           <div> 
             <h3>{user.login}</h3>
@@ -154,11 +171,18 @@ function App() {
             Nome: {user.name}<br />
             Biografia: {user.bio}<br />
             Link para o perfil no github: <a href={user.html_url} target='_blank' rel='noopener noreferrer '>{user.html_url}</a><br />
-            <div id='map' />
+            
+            <LeafletMap center={coord} zoom='13'>
+              <Marker position={coord}>
+                <Popup>
+                  {user.location}
+                </Popup>
+              </Marker>
+            </LeafletMap>
+            
             <ShowStarreds list={starred} />
           </div>
         }
-      </header>
     </div>
   );
 }
