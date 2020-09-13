@@ -1,15 +1,24 @@
 @import url('https://fonts.googleapis.com/css2?family=Inconsolata&family=Montserrat&display=swap');
 
-body {
-  font-family: 'Montserrat', sans-serif;
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
-h2 {
-  font-family: 'Inconsolata', monospace;
+html, body, #root, .App {
+  height: 100%;
+  width: 100%;
+}
+
+body {
+  background-color: #282a36;
+  font-family: 'Montserrat', sans-serif;
+  color: #f8f8f2;
 }
 
 .leaflet-container {
-  height: 400px;
-  width: 80%;
+  height: 200px;
+  width: 400px;
   margin: 0 auto;
 }

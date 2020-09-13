@@ -1,5 +1,25 @@
 
-#map {
-  height: 400px;
-  
+.App-header {
+  overflow: visible;
+  text-align: center;
+  height: 30vh;
+  background-color: #44475a;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Inconsolata', monospace;
+}
+
+.App-header {
+  padding-top: 15vh;
+}
+
+input {
+  padding: 15px;
+  width: 280px;
+  margin: 47px 0 25px;
+  height: 40px;
+  outline: none;
+  border: none;
+  border-radius: 5px;
 }
