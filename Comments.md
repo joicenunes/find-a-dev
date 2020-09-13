@@ -36,6 +36,6 @@ headers: {
 
 Pensei seriamente se utilizaria javascript puro ou alguma biblioteca para react. A questão é: eu não sei exatamente como escolher uma biblioteca, geralmente eu vou por opinião de colegas desenvolvedores, ou por já ter utilizado antes e saber como fazer funcionar.
 
-Depois de chorar um pouco por causa do mapa ~~porque levei uma surra tentando configurar mesmo procurando um monte de soluções no google~~, minha prima recomendou usar duas bibliotecas.
+Depois de chorar um pouco por causa do mapa ~~porque levei uma surra tentando configurar mesmo procurando um monte de soluções no google~~, minha prima recomendou usar duas bibliotecas: Pickpoint, para a aquisição de latitude e longitude buscando pelos nomes fornecidos por usuários para a localização; e React-Leaflet para a facilitação de exibir mapas.
 
-
+Depois de muito chorar, quase jogar o computador na parede, tudo parece estar rodando direito. :D

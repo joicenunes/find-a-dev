@@ -3,7 +3,7 @@ import logo from './logo.svg';
 import './App.css';
 
 import { API_KEY } from './keys.json';
-import { Map as LeafletMap, Marker, Popup } from 'leaflet';
+import { Map as LeafletMap, TileLayer, Marker, Popup } from 'react-leaflet';
 
 function App() {
   const [user, setUser] = useState({});
@@ -62,7 +62,7 @@ function App() {
 
   async function getLatLon(query) {
     try {
-      let res = await fetch(`https://api.pickpoint.io/v1/forward/?key=${API_KEY}&city=${treatLocal(query)}&limit=1&format=json`);
+      let res = await fetch(`https://api.pickpoint.io/v1/forward/?key=${API_KEY}&q=${treatLocal(query)}&limit=1&format=json`);
       
       if (res.status >= 200 && res.status < 300) {
         res = res.json()
@@ -119,8 +119,8 @@ function App() {
         id='username'
         name='username'
         placeholder='Insira um nome de usuário...'
-      />
-      <button type='submit'>Buscar</button>
+      /><br />
+      <button type='submit'>buscar</button>
     </form>;
   }
 
@@ -158,9 +158,9 @@ function App() {
   return (
     <div className="App">
       <header className="App-header">
-        <h2>
-          Encontre um desenvolvedor do github!
-        </h2>
+        <h1>
+          Buscar um desenvolvedor do github
+        </h1>
             
         <SearchOrLoad isLoading={loading} username={toSearch} />
       </header>
@@ -172,7 +172,11 @@ function App() {
             Biografia: {user.bio}<br />
             Link para o perfil no github: <a href={user.html_url} target='_blank' rel='noopener noreferrer '>{user.html_url}</a><br />
             
-            <LeafletMap center={coord} zoom='13'>
+            <LeafletMap center={coord} zoom='8'>
+              <TileLayer
+                attribution='© <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+                url='https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
+              />
               <Marker position={coord}>
                 <Popup>
                   {user.location}
