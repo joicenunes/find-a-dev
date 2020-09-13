@@ -1,25 +1,147 @@
 
+.App {
+  position: relative;
+}
+
 .App-header {
-  overflow: visible;
   text-align: center;
-  height: 30vh;
+  height: 135px;
   background-color: #44475a;
+  padding-top: 18px;
+  position: fixed;
+  width: 100%;
+  z-index: 999;
 }
 
 h1, h2, h3, h4, h5, h6 {
+  margin: 5px 0;
   font-family: 'Inconsolata', monospace;
 }
 
-.App-header {
-  padding-top: 15vh;
+h1, h2, h3 {
+  color: #bd93f9;
+}
+
+h4, h5, h6 {
+  color: #f8f8f2;
+}
+
+input, button {
+  margin: 20px 20px 20px 0;
+  height: 40px;
+  border-radius: 5px;
+  padding-left: 15px;
+  padding-right: 15px;
+  border: none;
+  outline: none;
 }
 
 input {
+  color: #f8f8f2;
+  background-color: #282a36;
   padding: 15px;
   width: 280px;
-  margin: 47px 0 25px;
-  height: 40px;
-  outline: none;
-  border: none;
+}
+
+button {
+  background-color: #bd93f9;
+  text-transform: uppercase;
+}
+
+button:hover {
+  filter: brightness(85%);
+  cursor: pointer;
+}
+
+.App-logo {
+  width: 80px;
+  height: 80px;
+  filter: hue-rotate(60deg);
+  animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg) }
+  100% { transform: rotate(360deg) }
+}
+
+.User-info {
+  padding-top:135px;
+  max-width: 960px;
+  margin: auto;
+  display: flex;
+  flex-flow: row wrap;
+  justify-content: space-between;
+}
+
+.User-info a {
+  text-decoration: none;
+  color: #bd93f9;
+}
+
+.User-info a:hover {
+  filter: brightness(75%);
+}
+
+.User-profile {
+  border-radius: 0 0 5px 5px;
+  background-color: #44475a;
+  padding: 0 15px 10px;
+  position: fixed;
+  width: 300px;
+}
+
+.User-profile img.User-avatar {
+  width: 120px;
+  height: 120px;
   border-radius: 5px;
+  margin: 12px 9px 5px 0;
+  float: left;
+}
+
+.User-profile .User-reference {
+  display: flex;
+  align-items: flex-end;
+}
+
+.User-profile .User-reference .User-name {
+  width: 140px;
+  word-wrap: break-word;
+}
+
+.User-profile small {
+  display: block;
+  margin-top: 15px;
+}
+
+.User-location404 {
+  margin-top: 20px;
+}
+
+.User-stars {
+  width: calc(960px - 318px);
+  margin-left: 318px;
+  padding: 8px 15px;
+}
+
+.User-stars ul {
+  list-style-type: none;
+}
+
+.User-stars ul li {
+  position: relative;
+  /* width: 80%; */
+  margin: 18px auto;
+  background-color: #6272a4;
+  border-radius: 5px;
+  padding: 15px;
+}
+
+.User-stars button {
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  padding: 8px;
+  height: 30px;
+  color: #f8f8f2;
 }

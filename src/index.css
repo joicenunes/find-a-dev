@@ -18,7 +18,8 @@ body {
 }
 
 .leaflet-container {
-  height: 200px;
-  width: 400px;
-  margin: 0 auto;
+  height: 120px;
+  width: 100%;
+  margin: 20px auto;
+  border-radius: 5px;
 }
