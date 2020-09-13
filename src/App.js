@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import logo from './logo.svg';
 import './App.css';
 
+// import { FaRegStar } from 'react-icons/fa';
+
 import { API_KEY } from './keys.json';
 import { Map as LeafletMap, TileLayer, Marker, Popup } from 'react-leaflet';
 
@@ -83,6 +85,10 @@ function App() {
       let search = document.querySelector('#username').value;
       setSearch(search);
 
+      let regex = /^[A-Za-z0-9]+((-?)[A-Za-z0-9])+$/g;
+      if (!regex.test(search))
+        throw new Error('Entrada inválida. Nomes de usuários devem seguir as regras de validação do github: São permitidos apenas caracteres alfanuméricos e hífens, estes últimos não podendo ser o primeiro ou último caractere ou estarem em sequência (--).');
+
       setLoading(true);
       let findTheUser = await getUser(search);
       setUser(findTheUser);
@@ -90,15 +96,16 @@ function App() {
       let findStarreds = await getStarreds(search);
       setStarred(findStarreds);
 
-      let [ local ] = await getLatLon(findTheUser.location);
-      let coord = [ local.lat, local.lon ];
-      setCoord(coord);
+      let res = await getLatLon(findTheUser.location);
+      if (res.length) {
+        let local = res[0];
+        setCoord([ local.lat, local.lon ]);
+      } else setCoord([]);
 
       setFound(true);
     } catch(e) {
-      console.log(e);
       setFound(false);
-      alert('Não foi possível encontrar o usuário indicado.');
+      alert(e);
     } finally {
       setLoading(false);
     }
@@ -106,10 +113,7 @@ function App() {
 
   function Loader(props) {
     return <div>
-      <img src={logo} className="App-logo" alt="logo" />
-      <p>
-        Buscando {props.username}
-      </p>
+      <img src={logo} className="App-logo" alt="loader" />
     </div>;
   }
 
@@ -119,9 +123,62 @@ function App() {
         id='username'
         name='username'
         placeholder='Insira um nome de usuário...'
-      /><br />
+      />
       <button type='submit'>buscar</button>
     </form>;
+  }
+
+  function UserInfo(props) {
+    return (
+      <div className="User-info">
+        <div className="User-profile">
+          <div className="User-reference">
+            <img src={props.info.avatar_url} alt="User's avatar on Github" className="User-avatar" />
+
+            <div>
+              <h2 className="User-name">@{props.info.login}</h2>
+              <h4><a href={props.info.html_url} target='_blank' rel='noopener noreferrer'>Ir para o perfil</a></h4>
+            </div>
+          </div>
+
+          { props.info.name &&
+            (<p>
+              <small>
+                Nome
+              </small>
+              {props.info.name}
+            </p>)
+          }
+          { props.info.bio && 
+            (<p>
+              <small>
+                Biografia
+              </small>
+              {props.info.bio}
+            </p>)
+          }
+          
+          { props.info.location && coord.length ?
+            <LeafletMap center={props.coord} zoom='8'>
+              <TileLayer
+                attribution='© <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+                url='https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
+              />
+              <Marker position={props.coord}>
+                <Popup>
+                  {props.info.location}
+                </Popup>
+              </Marker>
+            </LeafletMap>
+            : <p className='User-location404'>{ (!props.info.location ? 'Esse usuário não disponibilizou sua localização.' : 'A localização disponibilizada por esse usuário não retornou resultados.') }</p>
+          }
+        </div>
+        <div className='User-stars'>
+          <h4>Favoritos ({starred.length})</h4>
+          <ShowStarreds list={starred} />
+        </div>
+      </div>
+    )
   }
 
   function SearchOrLoad(props) {
@@ -134,26 +191,40 @@ function App() {
     if (props.list && props.list.length)
       return (
         <div>
-          <h4>Favoritos ({props.list.length})</h4>
           <ul>
             { props.list.map(repo => (
               <li key={repo.id}>
-                Nome: {repo.name}<br />
-                Nome completo: {repo.full_name}<br />
-                Link: {repo.html_url}<br />
-                Descrição: {repo.description}<br />
+                <h3><a href={repo.html_url} target='_blank' rel='noopener noreferrer'>{repo.full_name}</a></h3>
+                {repo.description}
+                {/* <button onClick={e => handleStar(repo)}>
+                  <FaRegStar />
+                </button> */}
               </li>
             )) }
-          </ul>;
+          </ul>
         </div>
       );
     else return (
       <div>
-        <h4>Favoritos ({props.list.length})</h4>
         <p>O usuário não tem repositórios favoritos.</p>
       </div>
     );
   }
+
+  // async function handleStar() {
+  //   try {
+  //     let res = await fetch(`https://api.pickpoint.io/v1/forward/?key=${API_KEY}&q=${treatLocal(query)}&limit=1&format=json`);
+      
+  //     if (res.status >= 200 && res.status < 300) {
+  //       res = res.json()
+  //       return Promise.resolve(res);
+  //     } else
+  //       return Promise.reject(res.statusText);
+        
+  //   } catch(e) {
+  //     alert('Erro ao');
+  //   }
+  // }
 
   return (
     <div className="App">
@@ -164,29 +235,7 @@ function App() {
             
         <SearchOrLoad isLoading={loading} username={toSearch} />
       </header>
-        { found &&
-          <div> 
-            <h3>{user.login}</h3>
-            <img src={user.avatar_url} alt="User's avatar on Github" /><br />
-            Nome: {user.name}<br />
-            Biografia: {user.bio}<br />
-            Link para o perfil no github: <a href={user.html_url} target='_blank' rel='noopener noreferrer '>{user.html_url}</a><br />
-            
-            <LeafletMap center={coord} zoom='8'>
-              <TileLayer
-                attribution='© <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
-                url='https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
-              />
-              <Marker position={coord}>
-                <Popup>
-                  {user.location}
-                </Popup>
-              </Marker>
-            </LeafletMap>
-            
-            <ShowStarreds list={starred} />
-          </div>
-        }
+      { found && <UserInfo coord={coord} info={user} /> }
     </div>
   );
 }
