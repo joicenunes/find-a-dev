@@ -54,8 +54,8 @@ function App() {
     }
   }
 
-  async function handleSubmit(evt) {
-    evt.preventDefault();
+  async function handleSubmit(event) {
+    event.preventDefault();
 
     try {
       let search = document.querySelector('#username').value;
@@ -98,21 +98,21 @@ function App() {
     </form>;
   }
 
-  function UserInfo(props) {
-    if (props.found) {
+  function UserInfo({ found, info, coord, stars }) {
+    if (found) {
       return (
         <div className="User-info">
-          <UserProfile info={props.info} coord={props.coord} />
-          <UserStars stars={props.stars} />
+          <UserProfile info={info} coord={coord} />
+          <UserStars stars={stars} />
         </div>
       )
     }
     return null;
   }
 
-  function SearchOrLoad(props) {
-    if (props.isLoading)
-      return <Loader username={props.username} />;
+  function SearchOrLoad({ isLoading, username }) {
+    if (isLoading)
+      return <Loader username={username} />;
     return <SearchForm />;
   }
 
