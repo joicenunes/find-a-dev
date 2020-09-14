@@ -5,7 +5,7 @@ import Loader from './components/Loader';
 import UserProfile from './components/UserProfile';
 import UserStars from './components/UserStars';
 
-import { getLatLon } from './util';
+import { getLatLon, getUser, getStarreds } from './util';
 
 function App() {
   const [user, setUser] = useState({});
@@ -14,45 +14,6 @@ function App() {
   const [loading, setLoading] = useState(false);
   const [toSearch, setSearch] = useState('');
   const [coord, setCoord] = useState([]);
-
-  async function getUser(username) {
-    try {
-      let res = await fetch(`https://api.github.com/users/${username}`, {
-        method: 'GET',
-        headers: {
-          'Accept': 'applicaton/vnd.github.v3+json'
-        }
-      });
-  
-      if (res.status >= 200 && res.status < 300) {
-        res = res.json();
-        return Promise.resolve(res);
-      } else
-        return Promise.reject(res.statusText);
-    } catch(e) {
-      console.log(e);
-      return Promise.reject(`Erro na busca pelo usuário ${username}.`)
-    }
-  }
-
-  async function getStarreds(username) {
-    try {
-      let res = await fetch(`https://api.github.com/users/${username}/starred`, {
-        method: 'GET',
-        headers: {
-          'Accept': 'applicaton/vnd.github.v3+json'
-        }
-      });
-      if (res.status >= 200 && res.status < 300) {
-        res = res.json()
-        return Promise.resolve(res);
-      } else
-        return Promise.reject(res.statusText);
-    } catch(e) {
-      console.log(e);
-      return Promise.reject(`Erro na obtenção de repositórios favoritos do usuário ${username}.`);
-    }
-  }
 
   async function handleSubmit(event) {
     event.preventDefault();
