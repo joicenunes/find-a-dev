@@ -112,6 +112,7 @@ button:hover {
 .User-profile small {
   display: block;
   margin-top: 15px;
+  font-variant: small-caps;
 }
 
 .User-location404 {

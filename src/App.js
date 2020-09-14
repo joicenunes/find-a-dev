@@ -85,10 +85,6 @@ function App() {
       let search = document.querySelector('#username').value;
       setSearch(search);
 
-      let regex = /^[A-Za-z0-9]+((-?)[A-Za-z0-9])+$/g;
-      if (!regex.test(search))
-        throw new Error('Entrada inválida. Nomes de usuários devem seguir as regras de validação do github: São permitidos apenas caracteres alfanuméricos e hífens, estes últimos não podendo ser o primeiro ou último caractere ou estarem em sequência (--).');
-
       setLoading(true);
       let findTheUser = await getUser(search);
       setUser(findTheUser);
@@ -122,7 +118,11 @@ function App() {
       <input
         id='username'
         name='username'
+        type='text'
         placeholder='Insira um nome de usuário...'
+        required
+        title='Nomes de usuários devem seguir as regras de validação do github: São permitidos apenas caracteres alfanuméricos e hífens, estes últimos não podendo ser o primeiro ou último caractere ou estarem em sequência (--)'
+        pattern='^[A-Za-z0-9]+((-?)[A-Za-z0-9])+$'
       />
       <button type='submit'>buscar</button>
     </form>;
