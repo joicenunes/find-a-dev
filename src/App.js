@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-import logo from './logo.svg';
 import './App.css';
 
-// import { FaRegStar } from 'react-icons/fa';
+import Loader from './components/Loader';
+import UserProfile from './components/UserProfile';
+import UserStars from './components/UserStars';
 
-import { API_KEY } from './keys.json';
-import { Map as LeafletMap, TileLayer, Marker, Popup } from 'react-leaflet';
+import { getLatLon } from './util';
 
 function App() {
   const [user, setUser] = useState({});
@@ -13,7 +13,6 @@ function App() {
   const [found, setFound] = useState(false);
   const [loading, setLoading] = useState(false);
   const [toSearch, setSearch] = useState('');
-
   const [coord, setCoord] = useState([]);
 
   async function getUser(username) {
@@ -55,29 +54,6 @@ function App() {
     }
   }
 
-  function treatLocal(str) {
-    if (!str) return null;
-    let res = str.replace(/[\u0021-\u002F]/g, "-");
-    res = res.replace(/\s/g, "");
-    return res;
-  }
-
-  async function getLatLon(query) {
-    try {
-      let res = await fetch(`https://api.pickpoint.io/v1/forward/?key=${API_KEY}&q=${treatLocal(query)}&limit=1&format=json`);
-      
-      if (res.status >= 200 && res.status < 300) {
-        res = res.json()
-        return Promise.resolve(res);
-      } else
-        return Promise.reject(res.statusText);
-        
-    } catch(e) {
-      console.log(e);
-      return Promise.reject();
-    }
-  }
-
   async function handleSubmit(evt) {
     evt.preventDefault();
 
@@ -107,13 +83,7 @@ function App() {
     }
   }
 
-  function Loader(props) {
-    return <div>
-      <img src={logo} className="App-logo" alt="loader" />
-    </div>;
-  }
-
-  function SearchForm(props) {
+  function SearchForm() {
     return <form onSubmit={e => handleSubmit(e)}>
       <input
         id='username'
@@ -129,56 +99,15 @@ function App() {
   }
 
   function UserInfo(props) {
-    return (
-      <div className="User-info">
-        <div className="User-profile">
-          <div className="User-reference">
-            <img src={props.info.avatar_url} alt="User's avatar on Github" className="User-avatar" />
-
-            <div>
-              <h2 className="User-name">@{props.info.login}</h2>
-              <h4><a href={props.info.html_url} target='_blank' rel='noopener noreferrer'>Ir para o perfil</a></h4>
-            </div>
-          </div>
-
-          { props.info.name &&
-            (<p>
-              <small>
-                Nome
-              </small>
-              {props.info.name}
-            </p>)
-          }
-          { props.info.bio && 
-            (<p>
-              <small>
-                Biografia
-              </small>
-              {props.info.bio}
-            </p>)
-          }
-          
-          { props.info.location && coord.length ?
-            <LeafletMap center={props.coord} zoom='8'>
-              <TileLayer
-                attribution='© <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
-                url='https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
-              />
-              <Marker position={props.coord}>
-                <Popup>
-                  {props.info.location}
-                </Popup>
-              </Marker>
-            </LeafletMap>
-            : <p className='User-location404'>{ (!props.info.location ? 'Esse usuário não disponibilizou sua localização.' : 'A localização disponibilizada por esse usuário não retornou resultados.') }</p>
-          }
+    if (props.found) {
+      return (
+        <div className="User-info">
+          <UserProfile info={props.info} coord={props.coord} />
+          <UserStars stars={props.stars} />
         </div>
-        <div className='User-stars'>
-          <h4>Favoritos ({starred.length})</h4>
-          <ShowStarreds list={starred} />
-        </div>
-      </div>
-    )
+      )
+    }
+    return null;
   }
 
   function SearchOrLoad(props) {
@@ -186,45 +115,6 @@ function App() {
       return <Loader username={props.username} />;
     return <SearchForm />;
   }
-
-  function ShowStarreds(props) {
-    if (props.list && props.list.length)
-      return (
-        <div>
-          <ul>
-            { props.list.map(repo => (
-              <li key={repo.id}>
-                <h3><a href={repo.html_url} target='_blank' rel='noopener noreferrer'>{repo.full_name}</a></h3>
-                {repo.description}
-                {/* <button onClick={e => handleStar(repo)}>
-                  <FaRegStar />
-                </button> */}
-              </li>
-            )) }
-          </ul>
-        </div>
-      );
-    else return (
-      <div>
-        <p>O usuário não tem repositórios favoritos.</p>
-      </div>
-    );
-  }
-
-  // async function handleStar() {
-  //   try {
-  //     let res = await fetch(`https://api.pickpoint.io/v1/forward/?key=${API_KEY}&q=${treatLocal(query)}&limit=1&format=json`);
-      
-  //     if (res.status >= 200 && res.status < 300) {
-  //       res = res.json()
-  //       return Promise.resolve(res);
-  //     } else
-  //       return Promise.reject(res.statusText);
-        
-  //   } catch(e) {
-  //     alert('Erro ao');
-  //   }
-  // }
 
   return (
     <div className="App">
@@ -235,7 +125,7 @@ function App() {
             
         <SearchOrLoad isLoading={loading} username={toSearch} />
       </header>
-      { found && <UserInfo coord={coord} info={user} /> }
+      <UserInfo found={found} stars={starred} coord={coord} info={user} />
     </div>
   );
 }
